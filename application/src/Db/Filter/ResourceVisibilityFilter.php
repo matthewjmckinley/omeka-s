@@ -4,7 +4,7 @@ namespace Omeka\Db\Filter;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Mapping\ClassMetaData;
 use Doctrine\ORM\Query\Filter\SQLFilter;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Laminas\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Filter resource or resource-related entities by visibility.
@@ -41,6 +41,17 @@ class ResourceVisibilityFilter extends SQLFilter
     {
         if ('Omeka\Entity\Resource' === $targetEntity->getName()) {
             return $this->getResourceConstraint($targetTableAlias);
+        }
+
+        if ('Omeka\Entity\SiteBlockAttachment' === $targetEntity->getName()) {
+            $itemConstraint = $this->getResourceConstraint('i');
+            $mediaConstraint = $this->getResourceConstraint('m');
+            if ('' !== $itemConstraint) {
+                return sprintf(
+                    '(%1$s.item_id IS NULL OR %1$s.item_id = (SELECT i.id FROM resource i WHERE (%2$s) AND i.id = %1$s.item_id)) AND (%1$s.media_id IS NULL OR %1$s.media_id = (SELECT m.id FROM resource m WHERE (%3$s) AND m.id = %1$s.media_id))',
+                    $targetTableAlias, $itemConstraint, $mediaConstraint
+                );
+            }
         }
 
         if (array_key_exists($targetEntity->getName(), $this->relatedEntities)) {

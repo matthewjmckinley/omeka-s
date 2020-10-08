@@ -3,9 +3,9 @@ namespace Omeka\Form;
 
 use Omeka\Form\Element\PropertySelect;
 use Omeka\Settings\SiteSettings;
-use Zend\Form\Form;
-use Zend\EventManager\EventManagerAwareTrait;
-use Zend\EventManager\Event;
+use Laminas\Form\Form;
+use Laminas\EventManager\EventManagerAwareTrait;
+use Laminas\EventManager\Event;
 
 class SiteSettingsForm extends Form
 {
@@ -29,6 +29,20 @@ class SiteSettingsForm extends Form
             ],
         ]);
         $generalFieldset = $this->get('general');
+        // o:assign_new_items element is a pseudo-setting that's ultimately set
+        // as a property of the site and not as a site setting.
+        $generalFieldset->add([
+            'name' => 'o:assign_new_items',
+            'type' => 'checkbox',
+            'options' => [
+                'label' => 'Auto-assign new items', // @translate
+                'info' => 'Select this if you want new items to be automatically assigned to this site. Note that item owners may unassign their items at any time.', // @translate
+            ],
+            'attributes' => [
+                'id' => 'assign_new_items',
+                'value' => true,
+            ],
+        ]);
         $generalFieldset->add([
             'name' => 'attachment_link_type',
             'type' => 'Select',
@@ -179,6 +193,28 @@ class SiteSettingsForm extends Form
             ],
         ]);
 
+        // Show section
+        $this->add([
+            'type' => 'fieldset',
+            'name' => 'show',
+            'options' => [
+                'label' => 'Show', // @translate
+            ],
+        ]);
+        $showFieldset = $this->get('show');
+        $showFieldset->add([
+            'name' => 'show_attached_pages',
+            'type' => 'checkbox',
+            'options' => [
+                'label' => 'Show attached pages', // @translate
+                'info' => 'Show site pages to which an item is attached on the public item show page.', // @translate
+            ],
+            'attributes' => [
+                'id' => 'show_attached_pages',
+                'value' => (bool) $settings->get('show_attached_pages', true),
+            ],
+        ]);
+
         // Search section
         $this->add([
             'type' => 'fieldset',
@@ -188,6 +224,42 @@ class SiteSettingsForm extends Form
             ],
         ]);
         $searchFieldset = $this->get('search');
+
+        $searchFieldset->add([
+            'name' => 'search_type',
+            'type' => 'Select',
+            'options' => [
+                'label' => 'Search type', // @translate
+                'info' => 'Select the type of search the main search field will perform', // @translate
+                'value_options' => [
+                    'sitewide' => 'This site', // @translate
+                    'cross-site' => 'All sites', // @translate
+                ],
+            ],
+            'attributes' => [
+                'id' => 'search_type',
+                'value' => $settings->get('search_type', 'sitewide'),
+            ],
+        ]);
+        $resourceNames = [
+            'site_pages' => 'Site pages', // @translate
+            'items' => 'Items', // @translate
+            'item_sets' => 'Item sets', // @translate
+        ];
+        $searchFieldset->add([
+            'name' => 'search_resource_names',
+            'type' => \Laminas\Form\Element\MultiCheckbox::class,
+            'options' => [
+                'label' => 'Search resources', // @translate
+                'info' => 'Customize which types of resources will be searchable in the main search field.', // @translate
+                'value_options' => $resourceNames,
+            ],
+            'attributes' => [
+                'id' => 'search_resource_names',
+                'value' => $settings->get('search_resource_names', ['site_pages', 'items']),
+                'required' => false,
+            ],
+        ]);
         $searchFieldset->add([
             'type' => 'Omeka\Form\Element\ResourceTemplateSelect',
             'name' => 'search_apply_templates',
@@ -243,6 +315,11 @@ class SiteSettingsForm extends Form
         ]);
         $inputFilter->get('browse')->add([
             'name' => 'browse_body_property_term',
+            'required' => false,
+            'allow_empty' => true,
+        ]);
+        $inputFilter->get('search')->add([
+            'name' => 'search_resource_names',
             'required' => false,
             'allow_empty' => true,
         ]);

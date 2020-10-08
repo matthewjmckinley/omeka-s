@@ -12,12 +12,14 @@ use Omeka\Entity\Resource;
 abstract class AbstractResourceEntityRepresentation extends AbstractEntityRepresentation
 {
     /**
-     * All value representations of this resource, organized by property.
+     * All value representations of this resource, organized by property term.
      *
      * <code>
      * array(
      *   {JSON-LD term} => array(
      *     'property' => {property representation},
+     *     'alternate_label' => {label},
+     *     'alternate_comment' => {comment},
      *     'values' => {
      *       {value representation},
      *       {value representation},
@@ -113,6 +115,7 @@ abstract class AbstractResourceEntityRepresentation extends AbstractEntityRepres
                 'o:resource_template' => $resourceTemplate,
                 'o:thumbnail' => $thumbnail,
                 'o:title' => $this->title(),
+                'thumbnail_display_urls' => $this->thumbnailDisplayUrls(),
             ],
             $dateTime,
             $this->getResourceJsonLd(),
@@ -155,7 +158,7 @@ abstract class AbstractResourceEntityRepresentation extends AbstractEntityRepres
     /**
      * Get the thumbnail of this resource.
      *
-     * @return Asset
+     * @return AssetRepresentation
      */
     public function thumbnail()
     {
@@ -221,7 +224,7 @@ abstract class AbstractResourceEntityRepresentation extends AbstractEntityRepres
     }
 
     /**
-     * Get all value representations of this resource.
+     * Get all value representations of this resource by term.
      *
      * <code>
      * array(
@@ -232,6 +235,7 @@ abstract class AbstractResourceEntityRepresentation extends AbstractEntityRepres
      *     'values' => array(
      *       {ValueRepresentation},
      *       {ValueRepresentation},
+     *       {…},
      *     ),
      *   ),
      * )
@@ -308,30 +312,25 @@ abstract class AbstractResourceEntityRepresentation extends AbstractEntityRepres
      *
      * @param string $term The prefix:local_part
      * @param array $options
-     * - type: (null) Get values of this type only. Valid types are "literal",
-     *   "uri", and "resource". Returns all types by default.
+     * - type (array|string): Get values of these types only. Default types are
+     *   "literal", "uri", "resource", "resource:item", "resource:media" and
+     *   "resource:itemset". Returns all types by default.
      * - all: (false) If true, returns all values that match criteria. If false,
      *   returns the first matching value.
      * - default: (null) Default value if no values match criteria. Returns null
-     *   by default.
-     * - lang: (null) Get values of this language only. Returns values of all
-     *   languages by default.
+     *   by default for single result, empty array for all results.
+     * - lang (array|string): Get values of these languages only. Returns values
+     *   of all languages by default. Use `['']` to get values without language.
      * @return ValueRepresentation|ValueRepresentation[]|mixed
      */
     public function value($term, array $options = [])
     {
         // Set defaults.
-        if (!isset($options['type'])) {
-            $options['type'] = null;
-        }
         if (!isset($options['all'])) {
             $options['all'] = false;
         }
         if (!isset($options['default'])) {
-            $options['default'] = null;
-        }
-        if (!isset($options['lang'])) {
-            $options['lang'] = null;
+            $options['default'] = $options['all'] ? [] : null;
         }
 
         if (!$this->getAdapter()->isTerm($term)) {
@@ -342,17 +341,29 @@ abstract class AbstractResourceEntityRepresentation extends AbstractEntityRepres
             return $options['default'];
         }
 
+        if (empty($options['type'])) {
+            $types = false;
+        } elseif (is_array($options['type'])) {
+            $types = $options['type'];
+        } else {
+            $types = [$options['type']];
+        }
+
+        if (empty($options['lang'])) {
+            $langs = false;
+        } elseif (is_array($options['lang'])) {
+            $langs = $options['lang'];
+        } else {
+            $langs = [$options['lang']];
+        }
+
         // Match only the representations that fit all the criteria.
         $matchingValues = [];
         foreach ($this->values()[$term]['values'] as $value) {
-            if (!is_null($options['type'])
-                && $value->type() !== $options['type']
-            ) {
+            if ($types && !in_array($value->type(), $types)) {
                 continue;
             }
-            if (!is_null($options['lang'])
-                && $value->lang() !== $options['lang']
-            ) {
+            if ($langs && !in_array($value->lang(), $langs)) {
                 continue;
             }
             $matchingValues[] = $value;
@@ -453,9 +464,9 @@ abstract class AbstractResourceEntityRepresentation extends AbstractEntityRepres
         $options['values'] = $args['values'];
 
         $template = $this->resourceTemplate();
-        if ($template) {
-            $options['templateProperties'] = $template->resourceTemplateProperties();
-        }
+        $options['templateProperties'] = $template
+            ? $template->resourceTemplateProperties()
+            : [];
 
         return $partial($options['viewName'], $options);
     }

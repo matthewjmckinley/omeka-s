@@ -2,10 +2,10 @@
 namespace Omeka\Form;
 
 use Omeka\Form\Element\SiteSelect;
-use Zend\EventManager\Event;
-use Zend\EventManager\EventManagerAwareTrait;
-use Zend\Form\Form;
-use Zend\View\Helper\Url;
+use Laminas\EventManager\Event;
+use Laminas\EventManager\EventManagerAwareTrait;
+use Laminas\Form\Form;
+use Laminas\View\Helper\Url;
 
 class UserBatchUpdateForm extends Form
 {
@@ -92,8 +92,8 @@ class UserBatchUpdateForm extends Form
                 'empty_option' => '[No change]', // @translate
                 'value_options' => [
                     'viewer' => 'Viewer', // @translate
-                    'editor' => 'Editor', // @translate
-                    'admin' => 'Admin', // @translate
+                    'editor' => 'Creator', // @translate
+                    'admin' => 'Manager', // @translate
                 ],
             ],
         ]);

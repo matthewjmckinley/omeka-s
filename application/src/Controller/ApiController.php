@@ -5,9 +5,9 @@ use Omeka\Api\Manager as ApiManager;
 use Omeka\Mvc\Exception;
 use Omeka\Stdlib\Paginator;
 use Omeka\View\Model\ApiJsonModel;
-use Zend\Mvc\Controller\AbstractRestfulController;
-use Zend\Mvc\MvcEvent;
-use Zend\Stdlib\RequestInterface as Request;
+use Laminas\Mvc\Controller\AbstractRestfulController;
+use Laminas\Mvc\MvcEvent;
+use Laminas\Stdlib\RequestInterface as Request;
 
 class ApiController extends AbstractRestfulController
 {
@@ -82,6 +82,12 @@ class ApiController extends AbstractRestfulController
 
         $this->getResponse()->getHeaders()
             ->addHeaderLine('Link', implode(', ', $links));
+
+        $totalResults = $response->getTotalResults();
+        if ($totalResults !== null) {
+            $this->getResponse()->getHeaders()
+                ->addHeaderLine('Omeka-S-Total-Results', $totalResults);
+        }
         return new ApiJsonModel($response, $this->getViewOptions());
     }
 

@@ -2,6 +2,7 @@
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
 $formElement = $this->plugin('formElement');
+$this->headScript()->appendFile($this->assetUrl('vendor/sortablejs/Sortable.min.js', 'Omeka'));
 $this->headScript()->appendFile($this->assetUrl('js/resource-form.js', 'Omeka'));
 $form->prepare();
 ?>
@@ -10,7 +11,7 @@ $form->prepare();
 
 <?php echo $this->sectionNav([
     'resource-values' => $translate('Values'),
-    'thumbnail' => $translate('Thumbnail'),
+    'advanced-settings' => $translate('Advanced'),
 ], $sectionNavEvent); ?>
 
 <?php $this->trigger("view.$action.form.before", ['form' => $form]); ?>
@@ -18,6 +19,7 @@ $form->prepare();
 <?php echo $this->partial('common/resource-fields.phtml', [
     'form' => $form,
     'resource' => $itemSet,
+    'action' => $action,
 ]); ?>
 
 <div id="page-actions">

@@ -2,7 +2,7 @@
 namespace Omeka\Media\Renderer;
 
 use Omeka\Api\Representation\MediaRepresentation;
-use Zend\View\Renderer\PhpRenderer;
+use Laminas\View\Renderer\PhpRenderer;
 
 class IIIF implements RendererInterface
 {
@@ -16,10 +16,10 @@ class IIIF implements RendererInterface
             '<div class="openseadragon" id="iiif-' . $media->id() . '" style="height: 400px;"></div>
             <script type="text/javascript">
                 var viewer = OpenSeadragon({
-                    id: "iiif-'.$media->id().'",
-                    prefixUrl: "'. $prefixUrl . '",
+                    id: "iiif-' . $media->id() . '",
+                    prefixUrl: "' . $prefixUrl . '",
                     tileSources: [
-                        '. json_encode($IIIFData) .'
+                        ' . json_encode($IIIFData) . '
                     ]
                 });
             </script>

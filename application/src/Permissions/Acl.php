@@ -2,8 +2,8 @@
 namespace Omeka\Permissions;
 
 use Omeka\Api\ResourceInterface;
-use Zend\Authentication\AuthenticationServiceInterface;
-use Zend\Permissions\Acl\Acl as ZendAcl;
+use Laminas\Authentication\AuthenticationServiceInterface;
+use Laminas\Permissions\Acl\Acl as ZendAcl;
 
 class Acl extends ZendAcl
 {
@@ -19,7 +19,7 @@ class Acl extends ZendAcl
      */
     protected $roleLabels = [
         self::ROLE_GLOBAL_ADMIN => 'Global Administrator', // @translate
-        self::ROLE_SITE_ADMIN => 'Site Administrator', // @translate
+        self::ROLE_SITE_ADMIN => 'Supervisor', // @translate
         self::ROLE_EDITOR => 'Editor', // @translate
         self::ROLE_REVIEWER => 'Reviewer', // @translate
         self::ROLE_AUTHOR => 'Author', // @translate

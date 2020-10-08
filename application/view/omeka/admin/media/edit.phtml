@@ -4,13 +4,14 @@ $escape = $this->plugin('escapeHtml');
 $formLabel = $this->plugin('formLabel');
 $formElement = $this->plugin('formElement');
 $this->htmlElement('body')->appendAttribute('class', 'edit media');
+$this->headScript()->appendFile($this->assetUrl('vendor/sortablejs/Sortable.min.js', 'Omeka'));
 $this->headScript()->appendFile($this->assetUrl('js/resource-form.js', 'Omeka'));
 $form->prepare();
 $mediaForm = $this->media()->updateForm($media);
 
 $sectionNavs = [
     'resource-values' => $translate('Values'),
-    'thumbnail' => $translate('Thumbnail'),
+    'advanced-settings' => $translate('Advanced'),
 ];
 if ($mediaForm) {
     $sectionNavs['media'] = $translate('Media');
@@ -37,7 +38,8 @@ var valuesJson = <?php echo json_encode($media->values()); ?>;
                     'id' => 'resource-values',
                     'class' => 'section active',
                     'form' => $form,
-                    'resource' => $media
+                    'resource' => $media,
+                    'action' => 'edit',
                 ]);
     ?>
 

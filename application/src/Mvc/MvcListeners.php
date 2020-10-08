@@ -6,14 +6,15 @@ use Omeka\Service\Delegator\SitePaginatorDelegatorFactory;
 use Omeka\Session\SaveHandler\Db;
 use Omeka\Site\Theme\Manager;
 use Omeka\Site\Theme\Theme;
-use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\AbstractListenerAggregate;
-use Zend\Mvc\Application as ZendApplication;
-use Zend\Mvc\MvcEvent;
-use Zend\Session\Config\SessionConfig;
-use Zend\Session\Container;
-use Zend\Session\SessionManager;
-use Zend\Validator\AbstractValidator;
+use Laminas\EventManager\EventManagerInterface;
+use Laminas\EventManager\AbstractListenerAggregate;
+use Laminas\Mvc\Application as ZendApplication;
+use Laminas\Mvc\MvcEvent;
+use Laminas\Permissions\Acl\Exception as AclException;
+use Laminas\Session\Config\SessionConfig;
+use Laminas\Session\Container;
+use Laminas\Session\SessionManager;
+use Laminas\Validator\AbstractValidator;
 
 class MvcListeners extends AbstractListenerAggregate
 {
@@ -144,7 +145,7 @@ class MvcListeners extends AbstractListenerAggregate
      * Redirect all requests to install route if Omeka is not installed.
      *
      * @param MvcEvent $event
-     * @return \Zend\Http\PhpEnvironment\Response
+     * @return \Laminas\Http\PhpEnvironment\Response
      */
     public function redirectToInstallation(MvcEvent $event)
     {
@@ -175,7 +176,7 @@ class MvcListeners extends AbstractListenerAggregate
      * on all other routes.
      *
      * @param MvcEvent $event
-     * @return \Zend\Http\PhpEnvironment\Response
+     * @return \Laminas\Http\PhpEnvironment\Response
      */
     public function redirectToMigration(MvcEvent $event)
     {
@@ -221,7 +222,7 @@ class MvcListeners extends AbstractListenerAggregate
      * Redirect all admin requests to login route if user not logged in.
      *
      * @param MvcEvent $event
-     * @return \Zend\Http\PhpEnvironment\Response
+     * @return \Laminas\Http\PhpEnvironment\Response
      */
     public function redirectToLogin(MvcEvent $event)
     {
@@ -431,7 +432,15 @@ class MvcListeners extends AbstractListenerAggregate
         $controller = $routeMatch->getParam('controller');
         $action = $routeMatch->getParam('action');
 
-        if (!$acl->userIsAllowed($controller, $action)) {
+        try {
+            $isAllowed = $acl->userIsAllowed($controller, $action);
+        } catch (AclException\InvalidArgumentException $e) {
+            // Allow "access" to nonexistent controllers, so we display
+            // a 404 instead of a 403 or an error
+            $isAllowed = true;
+        }
+
+        if (!$isAllowed) {
             $message = sprintf(
                 $t->translate('Permission denied for the current user to access the %1$s action of the %2$s controller.'),
                 $action,

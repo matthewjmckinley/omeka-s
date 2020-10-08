@@ -3,10 +3,10 @@ namespace Omeka\Api\Representation;
 
 use Omeka\Api\Adapter\AdapterInterface;
 use Omeka\Stdlib\DateTime;
-use Zend\EventManager\EventManagerAwareTrait;
-use Zend\I18n\Translator\TranslatorInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\View\HelperPluginManager;
+use Laminas\EventManager\EventManagerAwareTrait;
+use Laminas\I18n\Translator\TranslatorInterface;
+use Laminas\ServiceManager\ServiceLocatorInterface;
+use Laminas\View\HelperPluginManager;
 
 /**
  * Abstract representation.
@@ -102,6 +102,39 @@ abstract class AbstractRepresentation implements RepresentationInterface
     public function thumbnail()
     {
         return null;
+    }
+
+    /**
+     * Get the calculated thumbnail display URL for this representation.
+     *
+     * @param string $type The type of thumbnail to retrieve from the primary media,
+     *  if any is defined
+     * @return string}null
+     */
+    public function thumbnailDisplayUrl($type)
+    {
+        $thumbnail = $this->thumbnail();
+        $primaryMedia = $this->primaryMedia();
+        if (!$thumbnail && !$primaryMedia) {
+            return null;
+        }
+
+        return $thumbnail ? $thumbnail->assetUrl() : $primaryMedia->thumbnailUrl($type);
+    }
+
+    /**
+     * Get all calculated thumbnail display URLs, keyed by type.
+     *
+     * @return array
+     */
+    public function thumbnailDisplayUrls()
+    {
+        $thumbnailManager = $this->getServiceLocator()->get('Omeka\File\ThumbnailManager');
+        $urls = [];
+        foreach ($thumbnailManager->getTypes() as $type) {
+            $urls[$type] = $this->thumbnailDisplayUrl($type);
+        }
+        return $urls;
     }
 
     /**

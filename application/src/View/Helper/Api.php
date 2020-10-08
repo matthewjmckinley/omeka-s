@@ -2,7 +2,7 @@
 namespace Omeka\View\Helper;
 
 use Omeka\Api\Manager as ApiManager;
-use Zend\View\Helper\AbstractHelper;
+use Laminas\View\Helper\AbstractHelper;
 
 /**
  * View helper for direct access to API read and search operations.
@@ -51,7 +51,7 @@ class Api extends AbstractHelper
         $data['limit'] = 1;
         $response = $this->apiManager->search($resource, $data);
         $content = $response->getContent();
-        $content = is_array($content) && count($content) ? $content[0] : null;
+        $content = is_array($content) && count($content) ? reset($content) : null;
         $response->setContent($content);
         return $response;
     }

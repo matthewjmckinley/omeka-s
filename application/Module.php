@@ -3,8 +3,8 @@ namespace Omeka;
 
 use Omeka\Api\Adapter\FulltextSearchableInterface;
 use Omeka\Module\AbstractModule;
-use Zend\EventManager\Event as ZendEvent;
-use Zend\EventManager\SharedEventManagerInterface;
+use Laminas\EventManager\Event as ZendEvent;
+use Laminas\EventManager\SharedEventManagerInterface;
 
 /**
  * The Omeka module.
@@ -14,7 +14,7 @@ class Module extends AbstractModule
     /**
      * This Omeka version.
      */
-    const VERSION = '2.1.2';
+    const VERSION = '3.0.0';
 
     /**
      * The vocabulary IRI used to define Omeka application data.
@@ -38,7 +38,13 @@ class Module extends AbstractModule
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)
     {
         $sharedEventManager->attach(
-            'Zend\View\Helper\Navigation\AbstractHelper',
+            'Omeka\Api\Adapter\UserAdapter',
+            'api.execute.post',
+            [$this, 'batchUpdatePostUser']
+        );
+
+        $sharedEventManager->attach(
+            'Laminas\View\Helper\Navigation\AbstractHelper',
             'isAllowed',
             [$this, 'navigationPageIsAllowed']
         );
@@ -547,7 +553,6 @@ class Module extends AbstractModule
         $qb = $event->getParam('queryBuilder');
 
         $searchAlias = $adapter->createAlias();
-        $matchAlias = $adapter->createAlias();
 
         $match = sprintf(
             'MATCH(%s.title, %s.text) AGAINST (%s)',
@@ -562,14 +567,13 @@ class Module extends AbstractModule
             $adapter->createNamedParameter($qb, $adapter->getResourceName())
         );
 
-        $qb->addSelect(sprintf('%s AS %s', $match, $matchAlias))
-            ->innerJoin('Omeka\Entity\FulltextSearch', $searchAlias, 'WITH', $joinConditions)
+        $qb->innerJoin('Omeka\Entity\FulltextSearch', $searchAlias, 'WITH', $joinConditions)
             // Filter out resources with no similarity.
             ->andWhere(sprintf('%s > 0', $match))
             // Order by the relevance. Note the use of orderBy() and not
             // addOrderBy(). This should ensure that ordering by relevance
             // is the first thing being ordered.
-            ->orderBy($matchAlias, 'DESC');
+            ->orderBy($match, 'DESC');
 
         // Set visibility constraints.
         $acl = $this->getServiceLocator()->get('Omeka\Acl');

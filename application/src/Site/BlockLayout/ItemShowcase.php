@@ -4,7 +4,7 @@ namespace Omeka\Site\BlockLayout;
 use Omeka\Api\Representation\SiteRepresentation;
 use Omeka\Api\Representation\SitePageRepresentation;
 use Omeka\Api\Representation\SitePageBlockRepresentation;
-use Zend\View\Renderer\PhpRenderer;
+use Laminas\View\Renderer\PhpRenderer;
 
 class ItemShowcase extends AbstractBlockLayout
 {
@@ -19,7 +19,7 @@ class ItemShowcase extends AbstractBlockLayout
         $html = '';
         $html .= $view->blockAttachmentsForm($block);
 
-        $html .= '<a href="#" class="collapse" aria-label="collapse"><h4>' . $view->translate('Options'). '</h4></a>';
+        $html .= '<a href="#" class="collapse" aria-label="collapse"><h4>' . $view->translate('Options') . '</h4></a>';
         $html .= '<div class="collapsible">';
         $html .= $view->blockThumbnailTypeSelect($block);
         $html .= $view->blockShowTitleSelect($block);

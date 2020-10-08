@@ -1,9 +1,9 @@
 <?php
 namespace Omeka\Form\Element;
 
-use Zend\Form\Fieldset;
-use Zend\I18n\Translator\TranslatorInterface;
-use Zend\InputFilter\InputFilterProviderInterface;
+use Laminas\Form\Fieldset;
+use Laminas\I18n\Translator\TranslatorInterface;
+use Laminas\InputFilter\InputFilterProviderInterface;
 
 class PasswordConfirm extends Fieldset implements InputFilterProviderInterface
 {

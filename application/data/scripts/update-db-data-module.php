@@ -31,7 +31,7 @@ if (!is_dir($modulePath)) {
 // Initialize the Omeka application using the test database.
 $config = require OMEKA_PATH . '/application/config/application.config.php';
 $config['modules'][] = $moduleName;
-$application = Zend\Mvc\Application::init($config);
+$application = Laminas\Mvc\Application::init($config);
 
 $entityManager = $application->getServiceManager()->get('Omeka\EntityManager');
 
@@ -42,7 +42,7 @@ foreach ($classMetadatas as $classMetadata) {
     if (strncmp($fileName, $modulePath, strlen($modulePath)) === 0) {
         $moduleClassMetadatas[] = $classMetadata;
     }
-};
+}
 
 if (!$moduleClassMetadatas) {
     echo "There are no database entities for the $moduleName module.";

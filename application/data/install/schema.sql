@@ -55,6 +55,15 @@ CREATE TABLE `item_set` (
   PRIMARY KEY (`id`),
   CONSTRAINT `FK_1015EEEBF396750` FOREIGN KEY (`id`) REFERENCES `resource` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `item_site` (
+  `item_id` int(11) NOT NULL,
+  `site_id` int(11) NOT NULL,
+  PRIMARY KEY (`item_id`,`site_id`),
+  KEY `IDX_A1734D1F126F525E` (`item_id`),
+  KEY `IDX_A1734D1FF6BD1646` (`site_id`),
+  CONSTRAINT `FK_A1734D1F126F525E` FOREIGN KEY (`item_id`) REFERENCES `item` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_A1734D1FF6BD1646` FOREIGN KEY (`site_id`) REFERENCES `site` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 CREATE TABLE `job` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `owner_id` int(11) DEFAULT NULL,
@@ -185,7 +194,7 @@ CREATE TABLE `resource_template_property` (
   `alternate_label` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `alternate_comment` longtext COLLATE utf8mb4_unicode_ci,
   `position` int(11) DEFAULT NULL,
-  `data_type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `data_type` longtext COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '(DC2Type:json_array)',
   `is_required` tinyint(1) NOT NULL,
   `is_private` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`),
@@ -219,6 +228,7 @@ CREATE TABLE `site` (
   `created` datetime NOT NULL,
   `modified` datetime DEFAULT NULL,
   `is_public` tinyint(1) NOT NULL,
+  `assign_new_items` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `UNIQ_694309E4989D9B62` (`slug`),
   UNIQUE KEY `UNIQ_694309E4571EDDA` (`homepage_id`),
@@ -260,6 +270,7 @@ CREATE TABLE `site_page` (
   `site_id` int(11) NOT NULL,
   `slug` varchar(190) COLLATE utf8mb4_unicode_ci NOT NULL,
   `title` varchar(190) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `is_public` tinyint(1) NOT NULL,
   `created` datetime NOT NULL,
   `modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),

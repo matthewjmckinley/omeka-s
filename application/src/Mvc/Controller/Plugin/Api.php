@@ -5,8 +5,8 @@ use Omeka\Api\Exception\ValidationException;
 use Omeka\Api\Manager;
 use Omeka\Api\Response;
 use Omeka\Stdlib\ErrorStore;
-use Zend\Form\Form;
-use Zend\Mvc\Controller\Plugin\AbstractPlugin;
+use Laminas\Form\Form;
+use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 
 /**
  * Controller plugin for providing passthrough methods to the API manager.
@@ -79,7 +79,7 @@ class Api extends AbstractPlugin
         $data['limit'] = 1;
         $response = $this->search($resource, $data, $options);
         $content = $response->getContent();
-        $content = is_array($content) && count($content) ? $content[0] : null;
+        $content = is_array($content) && count($content) ? reset($content) : null;
         $response->setContent($content);
         return $response;
     }

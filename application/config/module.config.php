@@ -36,7 +36,7 @@ return [
         'use_externals' => true,
         'externals' => [
             'Omeka' => [
-                'vendor/jquery/jquery.min.js' => '//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js',
+                'vendor/jquery/jquery.min.js' => '//ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js',
             ],
         ],
     ],
@@ -64,6 +64,7 @@ return [
         ],
         'filters' => [
             'resource_visibility' => Db\Filter\ResourceVisibilityFilter::class,
+            'site_page_visibility' => Db\Filter\SitePageVisibilityFilter::class,
             'value_visibility' => Db\Filter\ValueVisibilityFilter::class,
         ],
         'functions' => [
@@ -186,10 +187,10 @@ return [
     'logger' => [
         'log' => false,
         'path' => OMEKA_PATH . '/logs/application.log',
-        'priority' => \Zend\Log\Logger::NOTICE,
+        'priority' => \Laminas\Log\Logger::NOTICE,
     ],
     'http_client' => [
-        'adapter' => \Zend\Http\Client\Adapter\Socket::class,
+        'adapter' => \Laminas\Http\Client\Adapter\Socket::class,
         'sslcapath' => null,
         'sslcafile' => null,
     ],
@@ -232,7 +233,7 @@ return [
     ],
     'service_manager' => [
         'abstract_factories' => [
-            \Zend\Navigation\Service\NavigationAbstractServiceFactory::class,
+            \Laminas\Navigation\Service\NavigationAbstractServiceFactory::class,
         ],
         'factories' => [
             'Omeka\Acl' => Service\AclFactory::class,
@@ -279,13 +280,13 @@ return [
             'Omeka\Environment' => Service\EnvironmentFactory::class,
         ],
         'invokables' => [
-            'ModuleRouteListener' => \Zend\Mvc\ModuleRouteListener::class,
+            'ModuleRouteListener' => \Laminas\Mvc\ModuleRouteListener::class,
             'Omeka\MvcExceptionListener' => Mvc\ExceptionListener::class,
             'Omeka\MvcListeners' => Mvc\MvcListeners::class,
             'Omeka\ViewApiJsonRenderer' => View\Renderer\ApiJsonRenderer::class,
         ],
         'delegators' => [
-            'Zend\I18n\Translator\TranslatorInterface' => [
+            'Laminas\I18n\Translator\TranslatorInterface' => [
                 'Omeka\Service\Delegator\TranslatorDelegatorFactory',
             ],
         ],
@@ -294,7 +295,7 @@ return [
             'Omeka\File\Thumbnailer' => 'Omeka\File\Thumbnailer\ImageMagick',
             'Omeka\Job\DispatchStrategy' => 'Omeka\Job\DispatchStrategy\PhpCli',
             'Omeka\JobDispatcher' => 'Omeka\Job\Dispatcher',
-            'Zend\Authentication\AuthenticationService' => 'Omeka\AuthenticationService',
+            'Laminas\Authentication\AuthenticationService' => 'Omeka\AuthenticationService',
         ],
         'shared' => [
             'Omeka\Paginator' => false,
@@ -304,12 +305,14 @@ return [
     'controllers' => [
         'invokables' => [
             'Omeka\Controller\Index' => Controller\IndexController::class,
+            'Omeka\Controller\Search' => Controller\SearchController::class,
             'Omeka\Controller\Maintenance' => Controller\MaintenanceController::class,
             'Omeka\Controller\Site\Index' => Controller\Site\IndexController::class,
             'Omeka\Controller\Site\Item' => Controller\Site\ItemController::class,
             'Omeka\Controller\Site\ItemSet' => Controller\Site\ItemSetController::class,
             'Omeka\Controller\Site\Media' => Controller\Site\MediaController::class,
             'Omeka\Controller\Site\Page' => Controller\Site\PageController::class,
+            'Omeka\Controller\Site\CrossSiteSearch' => Controller\Site\CrossSiteSearchController::class,
             'Omeka\Controller\Admin\Asset' => Controller\Admin\AssetController::class,
             'Omeka\Controller\Admin\Index' => Controller\Admin\IndexController::class,
             'Omeka\Controller\Admin\ItemSet' => Controller\Admin\ItemSetController::class,
@@ -387,6 +390,7 @@ return [
             'filterSelector' => View\Helper\FilterSelector::class,
             'propertySelector' => View\Helper\PropertySelector::class,
             'itemSetSelector' => View\Helper\ItemSetSelector::class,
+            'siteSelector' => View\Helper\SiteSelector::class,
             'userSelector' => View\Helper\UserSelector::class,
             'searchFilters' => View\Helper\SearchFilters::class,
             'blockAttachmentsForm' => View\Helper\BlockAttachmentsForm::class,
@@ -441,19 +445,19 @@ return [
             'passwordRequirements' => Service\ViewHelper\PasswordRequirementsFactory::class,
         ],
         'delegators' => [
-            'Zend\Form\View\Helper\FormElement' => [
+            'Laminas\Form\View\Helper\FormElement' => [
                 Service\Delegator\FormElementDelegatorFactory::class,
             ],
-            'Zend\Form\View\Helper\FormSelect' => [
+            'Laminas\Form\View\Helper\FormSelect' => [
                 Service\Delegator\FormSelectDelegatorFactory::class,
             ],
-            'Zend\Form\View\Helper\FormRow' => [
+            'Laminas\Form\View\Helper\FormRow' => [
                 Service\Delegator\FormRowDelegatorFactory::class,
             ],
-            'Zend\View\Helper\Navigation' => [
+            'Laminas\View\Helper\Navigation' => [
                 Service\Delegator\NavigationDelegatorFactory::class,
             ],
-            'Zend\View\Helper\HeadTitle' => [
+            'Laminas\View\Helper\HeadTitle' => [
                 Service\Delegator\HeadTitleDelegatorFactory::class,
             ],
         ],
